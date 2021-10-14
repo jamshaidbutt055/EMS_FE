@@ -3,6 +3,7 @@ import { Box } from "@mui/system";
 import React, { useEffect, useState } from "react";
 import InputForm from "./inputForm";
 import ValidateInputForm from "./validateInputForm";
+import { axiosCall } from "../utilities/axiosAPI";
 
 export const Login = (props) => {
   const [loginForm, setLoginForm] = useState({ username: "", password: "" });
@@ -21,19 +22,15 @@ export const Login = (props) => {
     setLoginForm({ ...loginForm, [event.target.name]: event.target.value });
   };
 
-  const handleSubmitClick = (event) => {
+  const handleSubmitClick = async (event) => {
     event.preventDefault();
     const validationResult = ValidateInputForm(loginForm);
     setValidationError(validationResult);
     if (!validationResult) {
-      let userList = JSON.parse(localStorage.getItem("users")) || [];
-      let userFound = userList.filter((user) => {
-        return (
-          user.username === loginForm.username &&
-          user.password === loginForm.password
-        );
-      });
-
+      let userFound = await axiosCall("/signin", "post", loginForm).then(
+        (response) => response.data
+      );
+      console.log(userFound);
       if (userFound.length) {
         localStorage.setItem(
           "loggedUser",

@@ -3,10 +3,10 @@ import { Box } from "@mui/system";
 import React, { useEffect, useState } from "react";
 import ValidateInputForm from "./validateInputForm";
 import InputForm from "./inputForm";
+import { axiosCall } from "../utilities/axiosAPI";
 
 export const Register = (props) => {
   const [registrationForm, setRegistrationForm] = useState({
-    id: 0,
     username: "",
     password: "",
   });
@@ -17,15 +17,6 @@ export const Register = (props) => {
     if (redirect) props.history.push("/login");
   }, [redirect]);
 
-  useEffect(() => {
-    if (registrationForm.id) {
-      let userList = JSON.parse(localStorage.getItem("users")) || [];
-      userList.push(registrationForm);
-      localStorage.setItem("users", JSON.stringify(userList));
-      setRedirect(true);
-    }
-  }, [registrationForm.id]);
-
   const handleInputChange = (event) => {
     setRegistrationForm({
       ...registrationForm,
@@ -33,18 +24,15 @@ export const Register = (props) => {
     });
   };
 
-  const handleSubmitClick = (event) => {
-    const min = 1,
-      max = 100;
-    const random = Math.round(min + Math.random() * (max - min));
+  const handleSubmitClick = async (event) => {
     event.preventDefault();
     const validationErrors = ValidateInputForm(registrationForm);
-    !validationErrors
-      ? setRegistrationForm({
-          ...registrationForm,
-          id: random,
-        })
-      : setErrors(validationErrors);
+    if (!validationErrors) {
+      let result = await axiosCall("/signup", "post", registrationForm).then(
+        (response) => response.data
+      );
+      if (result) setRedirect(true);
+    } else setErrors(validationErrors);
   };
 
   return (
@@ -60,7 +48,6 @@ export const Register = (props) => {
           validationErrors={errors}
         />
       </Box>
-      {/* <Link to="/login">Login</Link> */}
     </>
   );
 };
