@@ -4,10 +4,10 @@ import React, { useEffect, useState } from "react";
 import InputForm from "./inputForm";
 import ValidateInputForm from "./validateInputForm";
 import { axiosCall } from "../utilities/axiosAPI";
+import { toast } from "react-toastify";
 
 export const Login = (props) => {
-  const [loginForm, setLoginForm] = useState({ username: "", password: "" });
-  const [error, setError] = useState("");
+  const [loginForm, setLoginForm] = useState({ email: "", password: "" });
   const [validationErrors, setValidationError] = useState({});
   const [redirect, setRedirect] = useState(false);
 
@@ -27,21 +27,22 @@ export const Login = (props) => {
     const validationResult = ValidateInputForm(loginForm);
     setValidationError(validationResult);
     if (!validationResult) {
-      let userFound = await axiosCall("/signin", "post", loginForm).then(
+      let response = await axiosCall("/signin", "post", loginForm, false).then(
         (response) => response.data
       );
-      console.log(userFound);
-      if (userFound.length) {
+      if (!response.error) {
         localStorage.setItem(
           "loggedUser",
           JSON.stringify({
-            id: userFound[0].id,
-            username: userFound[0].username,
+            id: response.data.user._id,
+            name: response.data.user.name,
+            email: response.data.user.email,
+            token: response.data.token,
           })
         );
         setRedirect(true);
       } else {
-        setError("User not found");
+        toast.error(response.message);
       }
     }
   };
@@ -58,9 +59,7 @@ export const Login = (props) => {
           parentPage={"Login"}
           validationErrors={validationErrors}
         />
-        <div>{error}</div>
       </Box>
-      {/* <Link to="/register">Register new user</Link> */}
     </>
   );
 };

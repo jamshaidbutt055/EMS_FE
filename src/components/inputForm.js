@@ -14,14 +14,27 @@ function InputForm({
     <Card>
       <CardContent>
         <form onSubmit={onSubmitClick}>
+          {parentPage !== "Login" ? (
+            <TextField
+              sx={{ width: "100%", mb: "10px" }}
+              label="Full Name"
+              variant="outlined"
+              name="name"
+              onChange={onInputChange}
+              error={validationErrors && validationErrors.name !== undefined}
+              helperText={validationErrors ? validationErrors.name : ""}
+            />
+          ) : (
+            <></>
+          )}
           <TextField
             sx={{ width: "100%", mb: "10px" }}
-            label="Username"
+            label="Email"
             variant="outlined"
-            name="username"
+            name="email"
             onChange={onInputChange}
-            error={validationErrors && validationErrors.username !== undefined}
-            helperText={validationErrors ? validationErrors.username : ""}
+            error={validationErrors && validationErrors.email !== undefined}
+            helperText={validationErrors ? validationErrors.email : ""}
           />
           <TextField
             sx={{ width: "100%" }}
