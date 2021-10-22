@@ -4,10 +4,12 @@ import React, { useEffect, useState } from "react";
 import ValidateInputForm from "./validateInputForm";
 import InputForm from "./inputForm";
 import { axiosCall } from "../utilities/axiosAPI";
+import { toast } from "react-toastify";
 
 export const Register = (props) => {
   const [registrationForm, setRegistrationForm] = useState({
-    username: "",
+    name: "",
+    email: "",
     password: "",
   });
   const [redirect, setRedirect] = useState(false);
@@ -28,11 +30,16 @@ export const Register = (props) => {
     event.preventDefault();
     const validationErrors = ValidateInputForm(registrationForm);
     if (!validationErrors) {
-      let result = await axiosCall("/signup", "post", registrationForm).then(
-        (response) => response.data
-      );
-      if (result) setRedirect(true);
-    } else setErrors(validationErrors);
+      let result = await axiosCall("/signup", "post", registrationForm, false)
+        .then((response) => response.data)
+        .catch((err) => console.log(err));
+      if (!result.error) {
+        toast.success(result.message);
+        setRedirect(true);
+      } else toast.warning(result.message);
+    } else {
+      setErrors(validationErrors);
+    }
   };
 
   return (
